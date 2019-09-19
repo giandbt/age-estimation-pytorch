@@ -35,7 +35,7 @@ class ImgAugTransform:
 class FaceDataset(Dataset):
     def __init__(self, data_dir, data_type, img_size=224, augment=False, age_stddev=1.0):
         assert(data_type in ("train", "valid", "test"))
-        csv_path = Path(data_dir).joinpath(f"gt_avg_{data_type}.csv")
+        csv_path = Path(data_dir).joinpath("gt_avg_%s.csv" % data_type)
         img_dir = Path(data_dir).joinpath(data_type)
         self.img_size = img_size
         self.augment = augment
@@ -78,6 +78,101 @@ class FaceDataset(Dataset):
         img = cv2.imread(str(img_path), 1)
         img = cv2.resize(img, (self.img_size, self.img_size))
         img = self.transform(img).astype(np.float32)
+
+        ## FOR DEBUGGING
+
+        #cv2.imshow(str(round(age)), img)
+        #cv2.waitKey(0)
+        #v2.destroyAllWindows()
+
+        return torch.from_numpy(np.transpose(img, (2, 0, 1))), np.clip(round(age), 0, 100)
+
+class FaceDataset_Wiki(Dataset):
+    def __init__(self, data_dir, data_type=None, img_size=224, augment=False):
+        csv_path = Path(data_dir).joinpath("wiki_%s.csv" % data_type)
+
+        self.img_size = img_size
+        self.augment = augment
+        self.x = []
+        self.y = []
+        df = pd.read_csv(str(csv_path))
+
+        ignore_path = Path(data_dir).joinpath("ignore.csv")
+        ignore_img_names = list(pd.read_csv(str(ignore_path))["Image_Path"].values)
+
+        if augment:
+            self.transform = ImgAugTransform()
+        else:
+            self.transform = lambda i: i
+
+        for _, row in df.iterrows():
+            img_name = row["Image_Path"]
+
+            if img_name in ignore_img_names:
+                continue
+
+            img_path = img_name
+            self.x.append(str(img_path))
+            self.y.append(row["Age"])
+
+    def __len__(self):
+        return len(self.y)
+
+    def __getitem__(self, idx):
+        img_path = self.x[idx]
+        age = self.y[idx]
+
+        img = cv2.imread(str(img_path), 1)
+
+        img = cv2.resize(img, (self.img_size, self.img_size))
+        img = self.transform(img).astype(np.float32)
+
+        ## FOR DEBUGGING
+
+        #cv2.imshow(str(round(age)), img)
+        #cv2.waitKey(0)
+        #cv2.destroyAllWindows()
+
+        return torch.from_numpy(np.transpose(img, (2, 0, 1))), np.clip(round(age), 0, 100)
+
+class FaceDataset_Custom(Dataset):
+    def __init__(self, data_dir, data_type=None, img_size=224, augment=False):
+        csv_path = Path(data_dir).joinpath("%s2017_labels.csv" % data_type)
+
+        self.img_size = img_size
+        self.augment = augment
+        self.x = []
+        self.y = []
+        df = pd.read_csv(str(csv_path))
+
+        if augment:
+            self.transform = ImgAugTransform()
+        else:
+            self.transform = lambda i: i
+
+        for _, row in df.iterrows():
+            img_name = row["Image_Path"]
+
+            img_path = img_name
+            self.x.append(str(img_path))
+            self.y.append(row["Age"])
+
+    def __len__(self):
+        return len(self.y)
+
+    def __getitem__(self, idx):
+        img_path = self.x[idx]
+        age = self.y[idx]
+
+        img = cv2.imread(str(img_path), 1)
+        img = cv2.resize(img, (self.img_size, self.img_size))
+        img = self.transform(img).astype(np.float32)
+
+        ## FOR DEBUGGING
+
+        #cv2.imshow(str(round(age)), img)
+        #cv2.waitKey(0)
+        #cv2.destroyAllWindows()
         return torch.from_numpy(np.transpose(img, (2, 0, 1))), np.clip(round(age), 0, 100)
 
 

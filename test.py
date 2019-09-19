@@ -20,8 +20,7 @@ def get_args():
                          if not name.startswith("__")
                          and name.islower()
                          and callable(pretrainedmodels.__dict__[name]))
-    parser = argparse.ArgumentParser(description=f"available models: {model_names}",
-                                     formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument("--data_dir", type=str, required=True, help="Data root directory")
     parser.add_argument("--resume", type=str, required=True, help="Model weight to be tested")
     parser.add_argument("opts", default=[], nargs=argparse.REMAINDER,
@@ -64,7 +63,7 @@ def main():
 
     print("=> start testing")
     _, _, test_mae = validate(test_loader, model, None, 0, device)
-    print(f"test mae: {test_mae:.3f}")
+    print("test mae: %f"%test_mae)
 
 
 if __name__ == '__main__':

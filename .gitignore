@@ -1,0 +1,8 @@
+__pycache__/
+dataset.pyc
+defaults.pyc
+misc/epoch044_0.02343_3.9984.pth
+model.pyc
+temp/
+train.pyc
+

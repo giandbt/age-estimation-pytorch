@@ -17,7 +17,7 @@ from torch.utils.tensorboard import SummaryWriter
 import pretrainedmodels
 import pretrainedmodels.utils
 from model import get_model
-from dataset import FaceDataset
+from dataset import FaceDataset, FaceDataset_Custom
 from defaults import _C as cfg
 
 
@@ -181,8 +181,7 @@ def main():
         cudnn.benchmark = True
 
     criterion = nn.CrossEntropyLoss().to(device)
-    train_dataset = FaceDataset(args.data_dir, "train", img_size=cfg.MODEL.IMG_SIZE, augment=True,
-                                age_stddev=cfg.TRAIN.AGE_STDDEV)
+    train_dataset = FaceDataset_Custom(args.data_dir, "train", img_size=cfg.MODEL.IMG_SIZE, augment=True)
     train_loader = DataLoader(train_dataset, batch_size=cfg.TRAIN.BATCH_SIZE, shuffle=True,
                               num_workers=cfg.TRAIN.WORKERS, drop_last=True)
 
@@ -228,14 +227,16 @@ def main():
                 str(checkpoint_dir.joinpath("epoch{:03d}_{:.5f}_{:.4f}.pth".format(epoch, val_loss, val_mae)))
             )
             best_val_mae = val_mae
+
         else:
-            print('Epoch %i: Best Val MAE did not improve. Current Best Val MAE: %f. This epoch Val MAE: %f'
-                  % (epoch, best_val_mae, val_mae))
+            print('Epoch %i: Best Val MAE did not improve. Current Best Val MAE: %f. This epoch Val MAE: %f' %(epoch, best_val_mae, val_mae))
 
         # adjust learning rate
         scheduler.step()
 
     print("=> training finished")
+    print('Best Val MAE: %f' % best_val_mae)
+
 
 if __name__ == '__main__':
     main()

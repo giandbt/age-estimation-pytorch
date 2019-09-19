@@ -1,9 +1,9 @@
 # Age Estimation PyTorch
 PyTorch-based CNN implementation for estimating age from face images.
-Currently only the APPA-REAL dataset is supported.
-Similar Keras-based project can be found [here](https://github.com/yu4u/age-gender-estimation).
-
 <img src="misc/example.png" width="800px">
+
+# Fork Note
+-Added compatibility for custom datasets and the WIKI dataset. Few other changes as well. 
 
 ## Requirements
 
